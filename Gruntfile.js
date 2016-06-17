@@ -21,6 +21,13 @@ module.exports = function(grunt) {
 			files: [ 'test/*.html' ]
 		},
 
+        browserify: {
+            main: {
+                src: 'js/main.js',
+                dest: 'js/findem.js'
+            }
+        },
+
 		uglify: {
 			options: {
 				banner: '<%= meta.banner %>\n'
@@ -114,7 +121,7 @@ module.exports = function(grunt) {
 
 		watch: {
 			js: {
-				files: [ 'Gruntfile.js', 'js/reveal.js' ],
+				files: [ 'Gruntfile.js', 'js/*' ],
 				tasks: 'js'
 			},
 			theme: {
@@ -147,13 +154,15 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks( 'grunt-sass' );
 	grunt.loadNpmTasks( 'grunt-contrib-connect' );
 	grunt.loadNpmTasks( 'grunt-autoprefixer' );
+    grunt.loadNpmTasks( 'grunt-contrib-requirejs' );
+    grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks( 'grunt-zip' );
 
 	// Default task
 	grunt.registerTask( 'default', [ 'css', 'js' ] );
 
 	// JS task
-	grunt.registerTask( 'js', [ 'jshint', 'uglify', 'qunit' ] );
+	grunt.registerTask( 'js', [ 'jshint', 'uglify'/*, 'qunit'*/, 'browserify'] );
 
 	// Theme CSS
 	grunt.registerTask( 'css-themes', [ 'sass:themes' ] );

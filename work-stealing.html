@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Work-stealing Demo</title>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <svg width="712" height="400" viewBox="0 0 800 450">
+        <text id="w0n" x="100" y="15"  text-anchor="middle" fill="green">Worker 1</text>
+        <text id="w0s" x="100" y="40"  text-anchor="middle" fill="green">SOLVING</text>
+        <rect id="w0b" x="25"  y="50" width="150" height="400" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0)"></rect>
+
+        <text id="w1n" x="300" y="15" text-anchor="middle" fill="red">Worker 2</text>
+        <text id="w1s" x="300" y="40"  text-anchor="middle" fill="red">IDLE</text>
+        <rect id="w1b" x="225" y="50" width="150" height="0" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0)"></rect>
+
+        <text id="w2n" x="500" y="15" text-anchor="middle" fill="red">Worker 3</text>
+        <text id="w2s" x="500" y="40"  text-anchor="middle" fill="red">IDLE</text>
+        <rect id="w2b" x="425" y="50" width="150" height="0" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0)"></rect>
+
+        <text id="w3n" x="700" y="15" text-anchor="middle" fill="red">Worker 4</text>
+        <text id="w3s" x="700" y="40"  text-anchor="middle" fill="red">IDLE</text>
+        <rect id="w3b" x="625" y="50" width="150" height="0" style="fill:rgb(0,255,0);stroke-width:1;stroke:rgb(0,0,0)"></rect>
+    </svg>
+
+    <script type="text/javascript">
+        var textName   = [d3.select("#w0n"), d3.select("#w1n"), d3.select("#w2n"), d3.select("#w3n")];
+        var textStatus = [d3.select("#w0s"), d3.select("#w1s"), d3.select("#w2s"), d3.select("#w3s")];
+        var realStatus = ["ready", "idle", "idle", "idle"];
+        var bars   = [d3.select("#w0b"), d3.select("#w1b"), d3.select("#w2b"), d3.select("#w3b")];
+        var updateInterval = null;
+
+        function update() {
+            var possibleIdx = [0, 1, 2, 3];
+            for(var v in possibleIdx) {
+                var workerIdx = v;
+                // If a worker is ready, start solving
+                if(realStatus[workerIdx] == "ready") {
+                    realStatus[workerIdx] = "solving";
+                    textStatus[workerIdx].text("SOLVING");
+                    textStatus[workerIdx].interrupt().transition().duration(1000).attr("fill", "green");
+                    textName  [workerIdx].interrupt().transition().duration(1000).attr("fill", "green");
+
+                    bars[workerIdx].transition().duration(1000).style("fill", "green").transition().duration(bars[workerIdx].attr("height")/4.0*1000.0).ease("linear").attr("height", "0").each("end", function(){
+                        realStatus[workerIdx] = "idle";
+                        textStatus[workerIdx].text("IDLE");
+                        textStatus[workerIdx].interrupt().transition().duration(1000).attr("fill", "red");
+                        textName[workerIdx].interrupt().transition().duration(1000).attr("fill", "red");
+                    });
+                    return true; //only one action per tick
+                }
+                else if(realStatus[workerIdx] == "idle") {
+                    var secondWorkerIdx = -1;
+                    for(var testIdx in d3.shuffle([0, 1, 2, 3])) {
+                        if(secondWorkerIdx == -1 &&
+                                realStatus[testIdx] == "solving" &&
+                                bars[testIdx].attr("height") > 5
+                        )
+                            secondWorkerIdx = testIdx;
+                    }
+                    if(secondWorkerIdx != -1) {
+                        realStatus[workerIdx] = "receiving";
+                        textStatus[workerIdx].text("STEALING FROM "+(1+parseInt(secondWorkerIdx)));
+                        textStatus[workerIdx].interrupt().transition().duration(1000).attr("fill", "orange");
+                        textName  [workerIdx].interrupt().transition().duration(1000).attr("fill", "orange");
+
+                        realStatus[secondWorkerIdx] = "dividing";
+                        textStatus[secondWorkerIdx].text("DIVIDING FOR "+(1+parseInt(workerIdx)));
+                        textStatus[secondWorkerIdx].interrupt().transition().duration(1000).attr("fill", "orange");
+                        textName  [secondWorkerIdx].interrupt().transition().duration(1000).attr("fill", "orange");
+
+                        bars[secondWorkerIdx].interrupt();
+
+                        const curHeight = bars[secondWorkerIdx].attr("height");
+                        const height1 = (0.1+(Math.random()*0.8))*curHeight;
+                        const height2 = curHeight-height1;
+
+                        const wtf = secondWorkerIdx;
+                        bars[secondWorkerIdx].transition().duration(1000).style("fill", "orange").transition().duration(2000).attr("height", height1).each("end", function() {
+                            realStatus[wtf] = "ready";
+                        });
+
+                        bars[workerIdx].transition().duration(1000).style("fill", "orange").transition().duration(2000).attr("height", height2).each("end", function() {
+                            realStatus[workerIdx] = "ready";
+                        });
+
+                        return true; //only one action per tick
+                    }
+
+                }
+            }
+        }
+
+        function stop() {
+            if(null !== updateInterval) {
+                clearInterval(updateInterval);
+            }
+        }
+        function start() {
+            stop();
+            realStatus = ["ready", "idle", "idle", "idle"];
+            bars[0].interrupt().attr("height", 400).style("fill", "green");
+            bars[1].interrupt().attr("height", 0);
+            bars[2].interrupt().attr("height", 0);
+            bars[3].interrupt().attr("height", 0);
+            textStatus[0].interrupt().text("SOLVING").attr("fill", "green");
+            textStatus[1].interrupt().text("IDLE").attr("fill", "red");
+            textStatus[2].interrupt().text("IDLE").attr("fill", "red");
+            textStatus[3].interrupt().text("IDLE").attr("fill", "red");
+            textName[0].interrupt().attr("fill", "green");
+            textName[1].interrupt().attr("fill", "red");
+            textName[2].interrupt().attr("fill", "red");
+            textName[3].interrupt().attr("fill", "red");
+            setTimeout(function() { updateInterval = setInterval(update, 100)}, 1500);
+        }
+
+        start();
+
+    </script>
+</body>
+</html>

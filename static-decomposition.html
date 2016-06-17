@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Static-decomposition Demo</title>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+<br/>
+    <svg width="534px" height="400px" viewBox="0 0 800 600">
+        <text id="w0n" x="100" y="15" text-anchor="middle" style="opacity: 0;">Worker 1</text>
+        <!-- 25 -->
+        <rect id="w0b" x="100"  y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
+        <text id="w0bt" x="175" y="140" text-anchor="middle">Subproblem 1</text>
+
+        <text id="w1n" x="300" y="15" text-anchor="middle" style="opacity: 0;">Worker 2</text>
+        <!-- 225 -->
+        <rect id="w1b" x="250" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
+        <text id="w1bt" x="325" y="140" text-anchor="middle">Subproblem 2</text>
+
+        <text id="w2n" x="500" y="15" text-anchor="middle" style="opacity: 0;">Worker 3</text>
+        <!-- 425 -->
+        <rect id="w2b" x="400" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
+        <text id="w2bt" x="475" y="140" text-anchor="middle">Subproblem 3</text>
+
+        <text id="w3n" x="700" y="15" text-anchor="middle" style="opacity: 0;">Worker 4</text>
+        <!-- 625 -->
+        <rect id="w3b" x="550" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
+        <text id="w3bt" x="625" y="140" text-anchor="middle">Subproblem 4</text>
+
+        <rect id="problem" x="100" y="30" width="600" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 1;"></rect>
+        <text id="problemtext" x="400" y="140" text-anchor="middle" style="font-size: 30px">Initial problem</text>
+    </svg>
+
+    <script type="text/javascript">
+        var textName   = [d3.select("#w0n"), d3.select("#w1n"), d3.select("#w2n"), d3.select("#w3n")];
+        var barsName   = [d3.select("#w0bt"), d3.select("#w1bt"), d3.select("#w2bt"), d3.select("#w3bt")];
+        var bars   = [d3.select("#w0b"), d3.select("#w1b"), d3.select("#w2b"), d3.select("#w3b")];
+        var updateInterval = null;
+
+        nextFunc = [sd_divide, sd_assign_to_worker, sd_show_real_decomp];
+        prevFunc = [sd_divide_revert, sd_assign_to_worker_revert, sd_show_real_decomp_revert];
+
+        window.addEventListener("message", receiveMessage, false);
+
+        function receiveMessage(event)
+        {
+            if(event.data == "showFragment")
+                sd_next();
+        }
+
+        var curPos = 0;
+        function sd_next() {
+            if(curPos >= 3)
+                    return;
+            nextFunc[curPos]();
+            curPos += 1;
+        }
+
+        function sd_prev() {
+            if(curPos <= 0)
+                return;
+            curPos -= 1;
+            prevFunc[curPos]();
+        }
+
+        function sd_divide() {
+            d3.select("#problem").transition().duration(1000).style("opacity", 0);
+            d3.select("#problemtext").transition().duration(1000).style("opacity", 0);
+        }
+
+        function sd_divide_revert() {
+            d3.select("#problem").transition().duration(1000).style("opacity", 1);
+            d3.select("#problemtext").transition().duration(1000).style("opacity", 1);
+        }
+
+        function sd_assign_to_worker() {
+            d3.select("#w0b").transition().duration(1000).attr("x", 25);
+            d3.select("#w1b").transition().duration(1000).attr("x", 225);
+            d3.select("#w2b").transition().duration(1000).attr("x", 425);
+            d3.select("#w3b").transition().duration(1000).attr("x", 625);
+            d3.select("#w0bt").transition().duration(1000).attr("x", 100);
+            d3.select("#w1bt").transition().duration(1000).attr("x", 300);
+            d3.select("#w2bt").transition().duration(1000).attr("x", 500);
+            d3.select("#w3bt").transition().duration(1000).attr("x", 700);
+            d3.select("#w0n").transition().duration(1000).style("opacity", 1);
+            d3.select("#w1n").transition().duration(1000).style("opacity", 1);
+            d3.select("#w2n").transition().duration(1000).style("opacity", 1);
+            d3.select("#w3n").transition().duration(1000).style("opacity", 1);
+        }
+
+        function sd_assign_to_worker_revert() {
+            d3.select("#w0b").transition().duration(1000).attr("x", 100);
+            d3.select("#w1b").transition().duration(1000).attr("x", 250);
+            d3.select("#w2b").transition().duration(1000).attr("x", 400);
+            d3.select("#w3b").transition().duration(1000).attr("x", 550);
+            d3.select("#w0bt").transition().duration(1000).attr("x", 175);
+            d3.select("#w1bt").transition().duration(1000).attr("x", 325);
+            d3.select("#w2bt").transition().duration(1000).attr("x", 475);
+            d3.select("#w3bt").transition().duration(1000).attr("x", 625);
+            d3.select("#w0n").transition().duration(1000).style("opacity", 0);
+            d3.select("#w1n").transition().duration(1000).style("opacity", 0);
+            d3.select("#w2n").transition().duration(1000).style("opacity", 0);
+            d3.select("#w3n").transition().duration(1000).style("opacity", 0);
+        }
+
+        function sd_show_real_decomp() {
+            var color = d3.scale.linear()
+                    .range(["green", "darkred"])
+                    .interpolate(d3.interpolateHcl);
+
+            d3.select("#w0b").transition().duration(1000).attr("height", 150).style("fill", color(Math.abs(200-150)/100.0));
+            d3.select("#w1b").transition().duration(1000).attr("height", 300).style("fill", color(Math.abs(200-300)/100.0));
+            d3.select("#w2b").transition().duration(1000).attr("height", 110).style("fill", color(Math.abs(200-110)/100.0));
+            d3.select("#w3b").transition().duration(1000).attr("height", 240).style("fill", color(Math.abs(200-240)/100.0));
+            d3.select("#w0bt").transition().duration(1000).attr("y", 35+150/2);
+            d3.select("#w1bt").transition().duration(1000).attr("y", 35+300/2);
+            d3.select("#w2bt").transition().duration(1000).attr("y", 35+110/2);
+            d3.select("#w3bt").transition().duration(1000).attr("y", 35+240/2);
+        }
+
+        function sd_show_real_decomp_revert() {
+            var color = d3.scale.linear()
+                    .range(["green", "darkred"])
+                    .interpolate(d3.interpolateHcl);
+
+            d3.select("#w0b").transition().duration(1000).attr("height", 200).style("fill", "green");
+            d3.select("#w1b").transition().duration(1000).attr("height", 200).style("fill", "green");
+            d3.select("#w2b").transition().duration(1000).attr("height", 200).style("fill", "green");
+            d3.select("#w3b").transition().duration(1000).attr("height", 200).style("fill", "green");
+            d3.select("#w0bt").transition().duration(1000).attr("y", 140);
+            d3.select("#w1bt").transition().duration(1000).attr("y", 140);
+            d3.select("#w2bt").transition().duration(1000).attr("y", 140);
+            d3.select("#w3bt").transition().duration(1000).attr("y", 140);
+        }
+    </script>
+</body>
+</html>

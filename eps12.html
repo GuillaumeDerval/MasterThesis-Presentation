@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Static-decomposition Demo</title>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="node_modules/js-priority-queue/priority-queue.js" charset="utf-8"></script>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!--<button onclick="next()">NEXT</button><br/>-->
+
+    <svg id="eps_svg" width="534px" height="400px" viewBox="0 0 800 600">
+
+        <rect id="problem" x="100" y="30" width="600" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 1;"></rect>
+        <text id="problemtext" x="400" y="140" text-anchor="middle" style="font-size: 30px">Initial problem</text>
+    </svg>
+
+    <script type="text/javascript">
+        window.addEventListener("message", receiveMessage, false);
+
+        function receiveMessage(event)
+        {
+            if(event.data == "showFragment")
+                next();
+        }
+
+        var allSubproblems = [];
+        var workers = [];
+        var currentStep = 0;
+
+        function next() {
+            if(currentStep == 0) {
+                currentStep = -1;
+                generate_subproblems();
+            }
+            else if(currentStep == 1) {
+                currentStep = -1;
+                distribute_subproblems();
+            }
+            else if(currentStep == 2) {
+                currentStep = -1;
+                show_optimum();
+            }
+            else if(currentStep == 3) {
+                location.reload();
+            }
+        }
+
+        function show_optimum() {
+            var svg = d3.select("svg#eps_svg");
+            svg.append("line").attr("x1", 20).attr("y1", 400).attr("x2", 780).attr("y2", 400).style("stroke", "red")
+                    .style("stroke-width", 2).style("opacity", 0).style("stroke-dasharray", "5,5")
+                    .transition().duration(1000).style("opacity", 1).attr("y1", 100).attr("y2", 100);
+            svg.append("text").attr("x", 770).attr("y", 410).attr("fill", "red").style("writing-mode", "vertical-lr")
+                    .text("Optimum").style("opacity", 0)
+                    .transition().duration(1000).style("opacity", 1).attr("y", 110).each("end", function() {
+                currentStep = 3;
+            });
+
+        }
+
+        function generate_subproblems() {
+            var svg = d3.select("svg#eps_svg");
+            var color = d3.scale.linear()
+                    .range(["lightgreen", "red"])
+                    .interpolate(d3.interpolateHcl);
+
+            var cols = [];
+            for(var i = 0; i < 12; i = i + 1) {
+                const x = 100 + i*(600/12);
+                cols[i] = [];
+                var remaining = 200;
+                var j = 0;
+                while(remaining > 0) {
+                    var height = Math.min(5+Math.round(Math.random()*20),remaining);
+
+                    var rect = svg.append("rect")
+                            .attr("x", x).attr("y", 30+200-remaining)
+                            .attr("width", 1.1*(600/12)).attr("height", 1.1*(height))
+                            .style("fill", color((height-5)/20.0)).style("stroke-width", 1).style("stroke", "black")
+                            .style("opacity", 0);
+                    cols[i][j] = rect;
+                    j = j + 1;
+                    remaining -= height;
+                }
+            }
+
+            allSubproblems = [];
+            var empty = 0;
+            while(empty != 12) {
+                for(var i = 0; i < 12; i = i + 1) {
+                    if(cols[i].length == 0)
+                        continue;
+                    allSubproblems.push(cols[i].pop());
+                    if(cols[i].length == 0)
+                        empty += 1;
+                }
+            }
+
+            var randomOrder = d3.shuffle(allSubproblems.slice(0));
+            var maxDelay = 0;
+            for(var i = 0; i < randomOrder.length; i = i + 1) {
+                var delay = i*30+Math.random()*1000;
+                maxDelay = Math.max(delay, maxDelay);
+                randomOrder[i].transition().delay(delay).duration(300)
+                        .style("opacity", "1").attr("height", randomOrder[i].attr("height")/1.1).attr("width", randomOrder[i].attr("width")/1.1);
+            }
+            d3.transition().delay(maxDelay).duration(500).each("end", function() {
+                d3.select("#problem").style("opacity", 0);
+                d3.select("#problemtext").style("opacity", 0);
+                currentStep = 1;
+            });
+
+        }
+
+        function lt_comp(a, b) {
+            return a[0]-b[0];
+        }
+
+        function distribute_subproblems() {
+            var svg = d3.select("svg#eps_svg");
+            var queue = new PriorityQueue({comparator: lt_comp});
+            for(var i = 0; i < 8; i = i + 1) {
+                svg.append("text").text("Worker "+(i+1)).attr("x", 46+94*i+25).attr("y", 415).attr("text-anchor", "middle")
+                        .style("opacity", 0).transition().duration(1000).style("opacity", 1);
+                queue.queue([0, i]);
+            }
+            for(sp in allSubproblems) {
+                var workerData = queue.dequeue();
+                var workerTime = workerData[0];
+                var worker = workerData[1];
+
+                var spHeight = parseInt(allSubproblems[sp].attr("height"));
+                var x = 46+94*worker;
+                var y = 400-spHeight-workerTime;
+                allSubproblems[sp].transition().delay(60*sp).duration(1000).attr("x", x).attr("y", y);
+                queue.queue([workerTime+spHeight, worker]);
+            }
+            d3.transition().delay(60*allSubproblems.length).duration(500).each("end", function() {
+                currentStep = 2;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -2748,10 +2748,16 @@
 		} );
 
 		// Stop any currently playing video background
+		var previousVideoTime = 0;
+		var previousVideoSrc  = "";
 		if( previousBackground ) {
 
 			var previousVideo = previousBackground.querySelector( 'video' );
-			if( previousVideo ) previousVideo.pause();
+			if( previousVideo ) {
+				previousVideo.pause();
+				previousVideoTime = previousVideo.currentTime;
+				previousVideoSrc = previousVideo.currentSrc;
+			}
 
 		}
 
@@ -2761,8 +2767,12 @@
 			var currentVideo = currentBackground.querySelector( 'video' );
 			if( currentVideo ) {
 
+
 				var startVideo = function() {
-					currentVideo.currentTime = 0;
+					if(currentVideo.currentSrc === previousVideoSrc)
+						currentVideo.currentTime = previousVideoTime;
+					else
+						currentVideo.currentTime = 0;
 					currentVideo.play();
 					currentVideo.removeEventListener( 'loadeddata', startVideo );
 				};

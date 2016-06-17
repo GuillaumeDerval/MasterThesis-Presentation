@@ -7,10 +7,12 @@
 		<title>reveal.js</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/sky.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -24,8 +26,97 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+                <section>
+                    <h2>Parallelization of Constraint Programming using Embarrassingly Parallel Search</h2>
+                    Guillaume Derval<br/>
+                    June 24th 2016
+                </section>
+                <section>
+                    <h3>Cloud is everywhere</h3>
+                    <script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en&q=/m/02y_9m3,+/m/0jgqg&cmpt=q&tz=Etc/GMT-2&tz=Etc/GMT-2&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
+                </section>
+                <section>
+                    <h3>Virtually unlimited distributed power</h3>
+                    Amazon Web Services (in 2014): 2 000 000 servers<br/>
+                    Usage increase: 132% YoY<br/>
+                    <br/>
+                    Microsoft (in 2015): 1 000 000 servers<br/>
+                    <br/>
+                    Google : something in between
+                </section>
+                <section>
+                    <h3>Contents</h3>
+                    <ul>
+                        <li>CP, Parallel and Distributed Computing in 120 seconds</li>
+                        <li>Distributing CP</li>
+                        <li>Decompositions</li>
+                        <li>Bound management</li>
+                        <li>OscaR-Modeling</li>
+                    </ul>
+                </section>
+                <section><h2>CP, Parallel and Distributed Computing in 120 seconds</h2></section>
+                <section>
+                    <h3>Constraint programming</h3>
+                    To cite Eugene Freuder (in its famous paper In Pursuit of the Holy Grail):
+                    <blockquote>
+                        &ldquo;Constraint Programming represents one of the closest approaches computer science has yet
+                        made to the Holy Grail of programming: the user states the problem, the computer solves it.&rdquo;
+                    </blockquote>
+                </section>
+                <section>
+                    <h3>Constraint programming(2)</h3>
+                    <ul>
+                        <li>Given a CSP/COP</li>
+                        <li>Visit the "whole" search space</li>
+                        <li>Cut in the tree using "constraints"</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Serial, Parallel, Distributed computing</h3>
+                    <img src="img/spd.svg" style="border:none; box-shadow: none; background: transparent"/>
+                </section>
+                <section>
+                    <h3>Speedup and efficiency</h3>
+                    <h4>Speedup $S$ (in latency):</h4>
+                    Ratio between the time taken to run on the "old" arch., and the time on the "new" one.
+                    <br/>
+                    <br/>
+                    <h4>Efficiency $\eta$:</h4>
+                    Speedup divided by the number of threads/cores/workers involved.
+                </section>
+				<section><h1>Distributing CP</h1></section>
+                <section>
+                    <h3>Static Decomposition</h3>
+                    <ul>
+                        <li class="fragment">Divide the initial problem</li>
+                        <li class="fragment">S.t. each worker has a subproblem</li>
+                        <li class="fragment">Decomposing is hard</li>
+                    </ul>
+                    <iframe data-src="static-decomposition.html" width="540px" height="400px" style="margin: auto;"></iframe>
+                </section>
+                <section>
+                    <h3>Work-Stealing</h3>
+                    <ul>
+                        <li>Idle workers "steals" work</li>
+                        <li class="fragment">Start with a single worker with the full problem</li>
+                        <li class="fragment"><i>Idle</i> worker stop <i>solving</i> workers to ask for work</li>
+                        <li class="fragment">Difficult to say when to stop</li>
+                        <li class="fragment">Too much communication -> slow</li>
+                    </ul>
+                    <iframe data-src="work-stealing.html" width="712px" height="400px" style="margin: auto;"></iframe>
+                </section>
+                <section>
+                    <h3>Embarassingly Parallel Search</h3>
+                    <ul>
+                        <li>Extension of Static Decomposition</li>
+                        <li class="fragment">Numerous subproblems</li>
+                        <li class="fragment">Static or dynamic assignation to worker</li>
+                        <li class="fragment">More subproblems = better balancing</li>
+                    </ul>
+                    <iframe data-src="eps12.html" width="540px" height="400px" style="margin: auto;"></iframe>
+                </section>
+				<section data-background-video="video.mp4">Slide test</section>
+				<section data-background-video="video.mp4">Slide test2</section>
 			</div>
 		</div>
 
@@ -36,15 +127,26 @@
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
 				history: true,
-
+                controls: false,
+                transition: "convex",
+                math: {
+                    mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+                    config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+                },
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
 					{ src: 'plugin/markdown/marked.js' },
 					{ src: 'plugin/markdown/markdown.js' },
 					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true }
 				]
 			});
+
+            Reveal.addEventListener( 'fragmentshown', function( event ) {
+                var w = $("iframe", Reveal.getCurrentSlide())[0].contentWindow;
+                w.postMessage("showFragment","*");
+            } );
 		</script>
 	</body>
 </html>
