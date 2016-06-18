@@ -50,8 +50,8 @@
                         <li>CP, Parallel and Distributed Computing in 120 seconds</li>
                         <li>Distributing CP</li>
                         <li>Decompositions</li>
-                        <li>Bound management</li>
-                        <li>OscaR-Modeling</li>
+                        <li>OscaR-Modeling - DSL</li>
+                        <li>OscaR-Modeling - Architecture</li>
                     </ul>
                 </section>
                 <section><h2>CP, Parallel and Distributed Computing in 120 seconds</h2></section>
@@ -114,6 +114,97 @@
                         <li class="fragment">More subproblems = better balancing</li>
                     </ul>
                     <iframe data-src="eps12.html" width="540px" height="400px" style="margin: auto;"></iframe>
+                </section>
+                <section>
+                    <h2>Decompositions</h2>
+                </section>
+                <section>
+                    <h3>Importance of decompositions</h3>
+                    <br/>
+                    <br/>
+                    <p>
+                        Given $t_{\text{max}}$, the solving time of the largest subproblem:
+                    </p>
+                    <ul>
+                        <li>Minimum solving time is then $t_{\text{max}}$</li>
+                        <li>The maximum inactivity time of any worker is $t_{\text{max}}$</li>
+                    </ul>
+                    <br/><br/><br/>
+                    <h4>
+                        Decompositions should minimize $t_{\text{max}}$.
+                    </h4>
+                </section>
+                <section>
+                    <h3>Importance of decompositions(2)</h3>
+                    <br/>
+                    <br/>
+                    <p>For optimization problems</p>
+                    <h4>More balanced subproblems = better chances to find the optimum rapidly</h4>
+                </section>
+                <section>
+                    <h3>IDDFS</h3>
+                    Iterative deepening DFS, subproblems are the nodes on the last depth visited.<br/>
+                    <br/>
+                    <ol>
+                        <li>For maxDepth=1</li>
+                        <li>Do a DFS up to depth maxDepth, keep frontier in memory</li>
+                        <li>If frontier not big enough, increase maxDepth, start from 1</li>
+                        <li>Return frontier as subproblems</li>
+                    </ol>
+                </section>
+                <section>
+                    <h3>IDDFS(2)</h3>
+                    <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
+                    <ul>
+                        <li>Time complexity: $\mathcal{O}(n)$</li>
+                        <li>Space complexity: $\mathcal{O}(n)$</li>
+                    </ul>
+
+                    <p><small>NB: time complexity = number of calls to the fixed-point</small></p>
+                </section>
+                <section>
+                    <h3>IDDFS(3)</h3>
+                    Implicit assumption: each node at the same height are +/- the same space size
+                    <br/>
+                    <br/>
+                    <h4>In practice? False.</h4>
+                    <img data-src="img/golomb_decomp_regin.png"/>
+                </section>
+                <section>
+                    <h3>CPIR</h3>
+                    Idea: iterative refinement + decompose bigger subproblems first.<br/>
+                    <br/>
+                    Bigger = greater Cartesian Product Cardinality<br/>
+                    <br/>
+                    <ol>
+                        <li>Init a priority queue pq</li>
+                        <li>Put the initial problem inside</li>
+                        <li>While pq.size < threshold
+                            <ol>
+                                <li>Get biggest subproblem</li>
+                                <li>Divide it</li>
+                                <li>Put new subproblems in the queue</li>
+                            </ol>
+                        </li>
+                    </ol>
+                </section>
+                <section>
+                    <h3>CPIR(2)</h3>
+                    <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
+                    <ul>
+                        <li>Time complexity: $\mathcal{O}(n)$</li>
+                        <li>Space complexity: $\mathcal{O}(n)$</li>
+                    </ul>
+
+                    <p><small>NB: time complexity = number of calls to the fixed-point.</small></p>
+                </section>
+                <section>
+                    <h3>CPIR(3)</h3>
+                    <img data-src="img/golomb_decomp_cpr_binary.png"/>
+                </section>
+                <section>
+                    <h3>CPIR vs IDDFS</h3>
+                    <img data-src="img/iddfs_vs_cpir.png"/>
                 </section>
 				<section data-background-video="video.mp4">Slide test</section>
 				<section data-background-video="video.mp4">Slide test2</section>
