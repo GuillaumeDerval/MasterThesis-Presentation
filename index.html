@@ -7,7 +7,7 @@
 		<title>reveal.js</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/sky.css">
+		<link rel="stylesheet" href="css/theme/custom.css" id="theme">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -219,7 +219,7 @@
 			Reveal.initialize({
 				history: true,
                 controls: false,
-                transition: "convex",
+                transition: "slide",
                 math: {
                     mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
                     config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
@@ -230,8 +230,34 @@
 					{ src: 'plugin/markdown/markdown.js' },
 					{ src: 'plugin/notes/notes.js', async: true },
 					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-                    { src: 'plugin/math/math.js', async: true }
-				]
+                    { src: 'plugin/math/math.js', async: true },
+                    { src: 'plugin/menu/menu.js' }
+				],
+                menu: {
+                    side: 'left',
+                    numbers: true,
+                    titleSelector: 'h1, h2, h3, h4, h5, h6',
+                    hideMissingTitles: false,
+                    markers: true,
+                    custom: false,
+                    themes: [
+                        { name: 'Black', theme: 'css/theme/black.css' },
+                        { name: 'White', theme: 'css/theme/white.css' },
+                        { name: 'League', theme: 'css/theme/league.css' },
+                        { name: 'Sky', theme: 'css/theme/sky.css' },
+                        { name: 'Beige', theme: 'css/theme/beige.css' },
+                        { name: 'Simple', theme: 'css/theme/simple.css' },
+                        { name: 'Serif', theme: 'css/theme/serif.css' },
+                        { name: 'Blood', theme: 'css/theme/blood.css' },
+                        { name: 'Night', theme: 'css/theme/night.css' },
+                        { name: 'Moon', theme: 'css/theme/moon.css' },
+                        { name: 'Solarized', theme: 'css/theme/solarized.css' }
+                    ],
+                    transitions: true,
+                    openButton: false,
+                    openSlideNumber: false,
+                    keyboard: true
+                }
 			});
 
             Reveal.addEventListener( 'fragmentshown', function( event ) {
