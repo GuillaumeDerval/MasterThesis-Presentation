@@ -29,7 +29,6 @@
           <image xlink:href="img/backgrounds/squaregray.svg" x="0" y="0" width="1000" height="1000" />
         </mask>
 
-        <rect id="problem" x="100" y="30" width="600" height="200" style="fill: green; stroke-width:1;stroke:rgb(0,0,0); z-index: 1;"></rect>
         <text id="problemtext" x="400" y="140" text-anchor="middle" style="font-size: 30px">Initial problem</text>
     </svg>
 
@@ -46,10 +45,13 @@
         var workers = [];
         var currentStep = 0;
 
+        generate_subproblems();
+
         function next() {
+
             if(currentStep == 0) {
                 currentStep = -1;
-                generate_subproblems();
+                color_subproblems();
             }
             else if(currentStep == 1) {
                 currentStep = -1;
@@ -79,9 +81,6 @@
 
         function generate_subproblems() {
             var svg = d3.select("svg#eps_svg");
-            var color = d3.scale.linear()
-                    .range(["lightgreen", "red"])
-                    .interpolate(d3.interpolateHcl);
 
             var cols = [];
             for(var i = 0; i < 12; i = i + 1) {
@@ -94,9 +93,9 @@
 
                     var rect = svg.append("rect")
                             .attr("x", x).attr("y", 30+200-remaining)
-                            .attr("width", 1.1*(600/12)).attr("height", 1.1*(height))
-                            .style("fill", color((height-5)/20.0)).style("stroke-width", 1).style("stroke", "black")
-                            .style("opacity", 0);
+                            .attr("width", 600/12).attr("height", height)
+                            .style("fill", "green").style("stroke-width", 1).style("stroke", "black")
+                            .style("opacity", 1.1).style("stroke-opacity", 0);
                     cols[i][j] = rect;
                     j = j + 1;
                     remaining -= height;
@@ -114,6 +113,13 @@
                         empty += 1;
                 }
             }
+        }
+
+        function color_subproblems() {
+            d3.select("#problemtext").transition().duration(1000).style("opacity", 0);
+            var color = d3.scale.linear()
+                    .range(["lightgreen", "red"])
+                    .interpolate(d3.interpolateHcl);
 
             var randomOrder = d3.shuffle(allSubproblems.slice(0));
             var maxDelay = 0;
@@ -121,15 +127,13 @@
                 var delay = i*30+Math.random()*1000;
                 maxDelay = Math.max(delay, maxDelay);
                 randomOrder[i].transition().delay(delay).duration(300)
-                        .style("opacity", "1").attr("height", randomOrder[i].attr("height")/1.1).attr("width", randomOrder[i].attr("width")/1.1);
+                        .style("fill", color((randomOrder[i].attr("height")-5)/20.0)).style("stroke-opacity", 1);
+                //.style("opacity", "1").attr("height", randomOrder[i].attr("height")/1.1).attr("width", randomOrder[i].attr("width")/1.1);
             }
             d3.transition().delay(maxDelay).duration(500).each("end", function() {
-                d3.select("#problem").transition().duration(1000).style("opacity", 0);
-                d3.select("#problemtext").transition().duration(1000).style("opacity", 0);
                 currentStep = 1;
             });
         }
-
         function lt_comp(a, b) {
             return a[0]-b[0];
         }

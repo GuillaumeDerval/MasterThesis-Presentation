@@ -46,7 +46,7 @@ $selectionBackgroundColor: #134674;
 // Background generator
 @mixin bodyBackground() {
 	background: url("../../img/backgrounds/lightgrey1.svg");
-	background-size: 100% 100%;
+	background-size: cover;
 }
 
 

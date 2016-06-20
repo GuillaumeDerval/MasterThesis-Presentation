@@ -8,33 +8,46 @@
         body {
             font-family: sans-serif;
         }
+        rect {
+            mask:url('#masking');
+            mask-mode: alpha;
+        }
+        text.white {
+            fill: white;
+            font-weight:bold;
+        }
     </style>
 </head>
 <body>
 <br/>
     <svg width="534px" height="400px" viewBox="0 0 800 600" style="display:block; margin:auto;">
+        <mask id="masking" maskUnits="objectBoundingBox"
+              maskContentUnits="userSpaceOnUse">
+            <image xlink:href="img/backgrounds/squaregray.svg" x="0" y="0" width="1000" height="1000" />
+        </mask>
+
         <text id="w0n" x="100" y="15" text-anchor="middle" style="opacity: 0;">Worker 1</text>
         <!-- 25 -->
-        <rect id="w0b" x="100"  y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
-        <text id="w0bt" x="175" y="140" text-anchor="middle">Subproblem 1</text>
+        <rect id="w0b" x="100"  y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); stroke-opacity:0; z-index: 0;"></rect>
+        <text class="white" id="w0bt" x="175" y="140" text-anchor="middle" style="opacity: 0">Subproblem 1</text>
 
         <text id="w1n" x="300" y="15" text-anchor="middle" style="opacity: 0;">Worker 2</text>
         <!-- 225 -->
-        <rect id="w1b" x="250" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
-        <text id="w1bt" x="325" y="140" text-anchor="middle">Subproblem 2</text>
+        <rect id="w1b" x="250" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); stroke-opacity:0; z-index: 0;"></rect>
+        <text class="white" id="w1bt" x="325" y="140" text-anchor="middle" style="opacity: 0">Subproblem 2</text>
 
         <text id="w2n" x="500" y="15" text-anchor="middle" style="opacity: 0;">Worker 3</text>
         <!-- 425 -->
-        <rect id="w2b" x="400" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
-        <text id="w2bt" x="475" y="140" text-anchor="middle">Subproblem 3</text>
+        <rect id="w2b" x="400" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); stroke-opacity:0; z-index: 0;"></rect>
+        <text class="white" id="w2bt" x="475" y="140" text-anchor="middle" style="opacity: 0">Subproblem 3</text>
 
         <text id="w3n" x="700" y="15" text-anchor="middle" style="opacity: 0;">Worker 4</text>
         <!-- 625 -->
-        <rect id="w3b" x="550" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 0;"></rect>
-        <text id="w3bt" x="625" y="140" text-anchor="middle">Subproblem 4</text>
+        <rect id="w3b" x="550" y="30" width="150" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); stroke-opacity:0; z-index: 0;"></rect>
+        <text class="white" id="w3bt" x="625" y="140" text-anchor="middle" style="opacity: 0">Subproblem 4</text>
 
-        <rect id="problem" x="100" y="30" width="600" height="200" style="fill:green;stroke-width:1;stroke:rgb(0,0,0); z-index: 1;"></rect>
-        <text id="problemtext" x="400" y="140" text-anchor="middle" style="font-size: 30px">Initial problem</text>
+        <!--<rect id="problem" x="100" y="30" width="600" height="200" style="fill:green;stroke-width:0;stroke:rgb(0,0,0); z-index: 1;"></rect>-->
+        <text class="white" id="problemtext" x="400" y="140" text-anchor="middle" style="font-size: 30px">Initial problem</text>
     </svg>
 
     <script type="text/javascript">
@@ -70,13 +83,25 @@
         }
 
         function sd_divide() {
-            d3.select("#problem").transition().duration(1000).style("opacity", 0);
+            /*d3.select("#problem").transition().duration(1000).style("opacity", 0);*/
             d3.select("#problemtext").transition().duration(1000).style("opacity", 0);
+            d3.select("#w0bt").transition().duration(1000).style("opacity", 1);
+            d3.select("#w1bt").transition().duration(1000).style("opacity", 1);
+            d3.select("#w2bt").transition().duration(1000).style("opacity", 1);
+            d3.select("#w3bt").transition().duration(1000).style("opacity", 1);
+            d3.select("#w0b").transition().duration(1000).style("stroke-opacity", 1);
+            d3.select("#w1b").transition().duration(1000).style("stroke-opacity", 1);
+            d3.select("#w2b").transition().duration(1000).style("stroke-opacity", 1);
+            d3.select("#w3b").transition().duration(1000).style("stroke-opacity", 1);
         }
 
         function sd_divide_revert() {
-            d3.select("#problem").transition().duration(1000).style("opacity", 1);
+            /*d3.select("#problem").transition().duration(1000).style("opacity", 1);*/
             d3.select("#problemtext").transition().duration(1000).style("opacity", 1);
+            d3.select("#w0bt").transition().duration(1000).style("opacity", 0);
+            d3.select("#w1bt").transition().duration(1000).style("opacity", 0);
+            d3.select("#w2bt").transition().duration(1000).style("opacity", 0);
+            d3.select("#w3bt").transition().duration(1000).style("opacity", 0);
         }
 
         function sd_assign_to_worker() {
