@@ -54,7 +54,9 @@
                         <li>OscaR-Modeling - Architecture</li>
                     </ul>
                 </section>
-                <section><h2>CP, Parallel and Distributed Computing in 120 seconds</h2></section>
+                <section data-background-image="img/backgrounds/green1.svg">
+                    <h2>CP, Parallel and Distributed Computing in 120 seconds</h2>
+                </section>
                 <section>
                     <h3>Constraint programming</h3>
                     To cite Eugene Freuder (in its famous paper In Pursuit of the Holy Grail):
@@ -84,7 +86,9 @@
                     <h4>Efficiency $\eta$:</h4>
                     Speedup divided by the number of threads/cores/workers involved.
                 </section>
-				<section><h1>Distributing CP</h1></section>
+				<section data-background-image="img/backgrounds/lightred1.svg">
+                    <h1>Distributing CP</h1>
+                </section>
                 <section>
                     <h3>Static Decomposition</h3>
                     <ul>
@@ -94,7 +98,7 @@
                     </ul>
                     <iframe data-src="static-decomposition.html" width="540px" height="400px" style="margin: auto;"></iframe>
                 </section>
-                <section>
+                <section  data-background-image="img/backgrounds/lightgrey2.svg">
                     <h3>Work-Stealing</h3>
                     <ul>
                         <li>Idle workers "steals" work</li>
@@ -105,7 +109,7 @@
                     </ul>
                     <iframe data-src="work-stealing.html" width="712px" height="400px" style="margin: auto;"></iframe>
                 </section>
-                <section>
+                <section  data-background-image="img/backgrounds/lightgrey3.svg">
                     <h3>Embarassingly Parallel Search</h3>
                     <ul>
                         <li>Extension of Static Decomposition</li>
@@ -115,7 +119,7 @@
                     </ul>
                     <iframe data-src="eps12.html" width="540px" height="400px" style="margin: auto;"></iframe>
                 </section>
-                <section>
+                <section data-background-image="img/backgrounds/orange1.svg">
                     <h2>Decompositions</h2>
                 </section>
                 <section>
@@ -226,7 +230,8 @@
 			Reveal.initialize({
 				history: true,
                 controls: true,
-                transition: "convex",
+                transition: "slide",
+                backgroundTransition: 'fade',
                 math: {
                     mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
                     config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
