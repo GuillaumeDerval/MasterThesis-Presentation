@@ -31,7 +31,7 @@
                     Guillaume Derval<br/>
                     June 24th 2016
                 </section>
-                <section>
+                <!--<section>
                     <h3>Cloud is everywhere</h3>
                     <script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en&q=/m/02y_9m3,+/m/0jgqg&cmpt=q&tz=Etc/GMT-2&tz=Etc/GMT-2&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
                 </section>
@@ -43,7 +43,7 @@
                     Microsoft (in 2015): 1 000 000 servers<br/>
                     <br/>
                     Google : something in between
-                </section>
+                </section>-->
                 <section>
                     <h3>Contents</h3>
                     <ul>
@@ -119,88 +119,95 @@
                     <h2>Decompositions</h2>
                 </section>
                 <section>
-                    <h3>Importance of decompositions</h3>
-                    <br/>
-                    <br/>
-                    <p>
-                        Given $t_{\text{max}}$, the solving time of the largest subproblem:
-                    </p>
-                    <ul>
-                        <li>Minimum solving time is then $t_{\text{max}}$</li>
-                        <li>The maximum inactivity time of any worker is $t_{\text{max}}$</li>
-                    </ul>
-                    <br/><br/><br/>
-                    <h4>
-                        Decompositions should minimize $t_{\text{max}}$.
-                    </h4>
+                    <section>
+                        <h3>Importance of decompositions</h3>
+                        <br/>
+                        <br/>
+                        <p>
+                            Given $t_{\text{max}}$, the solving time of the largest subproblem:
+                        </p>
+                        <ul>
+                            <li>Minimum solving time is then $t_{\text{max}}$</li>
+                            <li>The maximum inactivity time of any worker is $t_{\text{max}}$</li>
+                        </ul>
+                        <br/><br/><br/>
+                        <h4>
+                            Decompositions should minimize $t_{\text{max}}$.
+                        </h4>
+                    </section>
+                    <section>
+                        <h3>Decompositions on COPs</h3>
+                        <br/>
+                        <br/>
+                        <p>For optimization problems</p>
+                        <h4>More balanced subproblems = better chances to find the optimum rapidly</h4>
+                    </section>
                 </section>
                 <section>
-                    <h3>Importance of decompositions(2)</h3>
-                    <br/>
-                    <br/>
-                    <p>For optimization problems</p>
-                    <h4>More balanced subproblems = better chances to find the optimum rapidly</h4>
-                </section>
-                <section>
-                    <h3>IDDFS</h3>
-                    Iterative deepening DFS, subproblems are the nodes on the last depth visited.<br/>
-                    <br/>
-                    <ol>
-                        <li>For maxDepth=1</li>
-                        <li>Do a DFS up to depth maxDepth, keep frontier in memory</li>
-                        <li>If frontier not big enough, increase maxDepth, start from 1</li>
-                        <li>Return frontier as subproblems</li>
-                    </ol>
-                </section>
-                <section>
-                    <h3>IDDFS(2)</h3>
-                    <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
-                    <ul>
-                        <li>Time complexity: $\mathcal{O}(n)$</li>
-                        <li>Space complexity: $\mathcal{O}(n)$</li>
-                    </ul>
+                    <section>
+                        <h3>IDDFS</h3>
+                        Iterative deepening DFS, subproblems are the nodes on the last depth visited.<br/>
+                        <br/>
+                        <ol>
+                            <li>For maxDepth=1</li>
+                            <li>Do a DFS up to depth maxDepth, keep frontier in memory</li>
+                            <li>If frontier not big enough, increase maxDepth, start from 1</li>
+                            <li>Return frontier as subproblems</li>
+                        </ol>
+                    </section>
 
-                    <p><small>NB: time complexity = number of calls to the fixed-point</small></p>
-                </section>
-                <section>
-                    <h3>IDDFS(3)</h3>
-                    Implicit assumption: each node at the same height are +/- the same space size
-                    <br/>
-                    <br/>
-                    <h4>In practice? False.</h4>
-                    <img data-src="img/golomb_decomp_regin.png"/>
-                </section>
-                <section>
-                    <h3>CPIR</h3>
-                    Idea: iterative refinement + decompose bigger subproblems first.<br/>
-                    <br/>
-                    Bigger = greater Cartesian Product Cardinality<br/>
-                    <br/>
-                    <ol>
-                        <li>Init a priority queue pq</li>
-                        <li>Put the initial problem inside</li>
-                        <li>While pq.size < threshold
-                            <ol>
-                                <li>Get biggest subproblem</li>
-                                <li>Divide it</li>
-                                <li>Put new subproblems in the queue</li>
-                            </ol>
-                        </li>
-                    </ol>
-                </section>
-                <section>
-                    <h3>CPIR(2)</h3>
-                    <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
-                    <ul>
-                        <li>Time complexity: $\mathcal{O}(n)$</li>
-                        <li>Space complexity: $\mathcal{O}(n)$</li>
-                    </ul>
+                    <section>
+                        <h3>Complexity</h3>
+                        <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
+                        <ul>
+                            <li>Time complexity: $\mathcal{O}(n)$</li>
+                            <li>Space complexity: $\mathcal{O}(n)$</li>
+                        </ul>
 
-                    <p><small>NB: time complexity = number of calls to the fixed-point.</small></p>
+                        <p><small>NB: time complexity = number of calls to the fixed-point</small></p>
+                    </section>
+                    <section>
+                        <h3>Good enough?</h3>
+                        Implicit assumption: each node at the same height are +/- the same space size
+                        <br/>
+                        <br/>
+                        <h4>In practice? False.</h4>
+                        <img data-src="img/golomb_decomp_regin.png"/>
+                    </section>
                 </section>
                 <section>
-                    <h3>CPIR(3)</h3>
-                    <img data-src="img/golomb_decomp_cpr_binary.png"/>
+                    <section>
+                        <h3>CPIR</h3>
+                        Idea: iterative refinement + decompose bigger subproblems first.<br/>
+                        <br/>
+                        Bigger = greater Cartesian Product Cardinality<br/>
+                        <br/>
+                        <ol>
+                            <li>Init a priority queue pq</li>
+                            <li>Put the initial problem inside</li>
+                            <li>While pq.size < threshold
+                                <ol>
+                                    <li>Get biggest subproblem</li>
+                                    <li>Divide it</li>
+                                    <li>Put new subproblems in the queue</li>
+                                </ol>
+                            </li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h3>Complexity</h3>
+                        <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
+                        <ul>
+                            <li>Time complexity: $\mathcal{O}(n)$</li>
+                            <li>Space complexity: $\mathcal{O}(n)$</li>
+                        </ul>
+
+                        <p><small>NB: time complexity = number of calls to the fixed-point.</small></p>
+                    </section>
+                    <section>
+                        <h3>Good enough?</h3>
+                        <img data-src="img/golomb_decomp_cpr_binary.png"/>
+                    </section>
                 </section>
                 <section>
                     <h3>CPIR vs IDDFS</h3>
@@ -218,8 +225,8 @@
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
 				history: true,
-                controls: false,
-                transition: "slide",
+                controls: true,
+                transition: "convex",
                 math: {
                     mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
                     config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
@@ -251,10 +258,11 @@
                         { name: 'Blood', theme: 'css/theme/blood.css' },
                         { name: 'Night', theme: 'css/theme/night.css' },
                         { name: 'Moon', theme: 'css/theme/moon.css' },
-                        { name: 'Solarized', theme: 'css/theme/solarized.css' }
+                        { name: 'Solarized', theme: 'css/theme/solarized.css' },
+                        { name: 'Custom', theme: 'css/theme/custom.css' }
                     ],
                     transitions: true,
-                    openButton: false,
+                    openButton: true,
                     openSlideNumber: false,
                     keyboard: true
                 }
