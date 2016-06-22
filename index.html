@@ -50,23 +50,24 @@
                         <li>CP, Parallel and Distributed Computing in 120 seconds</li>
                         <li>Distributing CP</li>
                         <li>Decompositions</li>
-                        <li>OscaR-Modeling - DSL</li>
-                        <li>OscaR-Modeling - Architecture</li>
+                        <li>Bound communication</li>
+                        <li>OscaR-Modeling</li>
+                        <li>Performances</li>
                     </ul>
                 </section>
                 <section data-background-image="img/backgrounds/green1.svg">
                     <h2>CP, Parallel and Distributed Computing in 120 seconds</h2>
                 </section>
-                <section>
+                <!--<section>
                     <h3>Constraint programming</h3>
                     To cite Eugene Freuder (in its famous paper In Pursuit of the Holy Grail):
                     <blockquote>
                         &ldquo;Constraint Programming represents one of the closest approaches computer science has yet
                         made to the Holy Grail of programming: the user states the problem, the computer solves it.&rdquo;
                     </blockquote>
-                </section>
+                </section>-->
                 <section>
-                    <h3>Constraint programming(2)</h3>
+                    <h3>Constraint programming<!--(2)--></h3>
                     <ul>
                         <li>Given a CSP/COP</li>
                         <li>Visit the "whole" search space</li>
@@ -78,13 +79,13 @@
                     <img src="img/spd.svg" style="border:none; box-shadow: none; background: transparent"/>
                 </section>
                 <section>
-                    <h3>Speedup and efficiency</h3>
+                    <h3>Speedup<!-- and efficiency--></h3>
                     <h4>Speedup $S$ (in latency):</h4>
                     Ratio between the time taken to run on the "old" arch., and the time on the "new" one.
-                    <br/>
+                    <!--<br/>
                     <br/>
                     <h4>Efficiency $\eta$:</h4>
-                    Speedup divided by the number of threads/cores/workers involved.
+                    Speedup divided by the number of threads/cores/workers involved.-->
                 </section>
 				<section data-background-image="img/backgrounds/lightred1.svg">
                     <h1>Distributing CP</h1>
@@ -100,14 +101,16 @@
                 </section>
                 <section  data-background-image="img/backgrounds/lightgrey2.svg">
                     <h3>Work-Stealing</h3>
-                    <ul>
+                    Idle workers "steals" work<br/>
+                    <br/>
+                    <!--<ul>
                         <li>Idle workers "steals" work</li>
                         <li class="fragment">Start with a single worker with the full problem</li>
                         <li class="fragment"><i>Idle</i> worker stop <i>solving</i> workers to ask for work</li>
                         <li class="fragment">Difficult to say when to stop</li>
                         <li class="fragment">Too much communication -> slow</li>
-                    </ul>
-                    <iframe data-src="work-stealing.html" width="712px" height="400px" style="margin: auto;"></iframe>
+                    </ul>-->
+                    <iframe data-src="work-stealing.html" width="712px" height="380px" style="margin: auto;"></iframe>
                 </section>
                 <section  data-background-image="img/backgrounds/lightgrey3.svg">
                     <h3>Embarassingly Parallel Search</h3>
@@ -159,17 +162,6 @@
                             <li>Return frontier as subproblems</li>
                         </ol>
                     </section>
-
-                    <section>
-                        <h3>Complexity</h3>
-                        <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
-                        <ul>
-                            <li>Time complexity: $\mathcal{O}(n)$</li>
-                            <li>Space complexity: $\mathcal{O}(n)$</li>
-                        </ul>
-
-                        <p><small>NB: time complexity = number of calls to the fixed-point</small></p>
-                    </section>
                     <section>
                         <h3>Good enough?</h3>
                         Implicit assumption: each node at the same height are +/- the same space size
@@ -199,16 +191,6 @@
                         </ol>
                     </section>
                     <section>
-                        <h3>Complexity</h3>
-                        <p>For $n$ the number of subproblems and $b$ the branching factor:</p>
-                        <ul>
-                            <li>Time complexity: $\mathcal{O}(n)$</li>
-                            <li>Space complexity: $\mathcal{O}(n)$</li>
-                        </ul>
-
-                        <p><small>NB: time complexity = number of calls to the fixed-point.</small></p>
-                    </section>
-                    <section>
                         <h3>Good enough?</h3>
                         <img data-src="img/golomb_decomp_cpr_binary.png"/>
                     </section>
@@ -217,8 +199,134 @@
                     <h3>CPIR vs IDDFS</h3>
                     <img data-src="img/iddfs_vs_cpir.png"/>
                 </section>
-				<section data-background-video="video.mp4">Slide test</section>
-				<section data-background-video="video.mp4">Slide test2</section>
+                <section data-background-image="img/backgrounds/green2.svg">
+                    <h2>Bound management</h2>
+                </section>
+                <section>
+                    <h3>EPS for COPs</h3>
+                    <img data-src="img/speedup_comm.svg"/>
+                </section>
+                <section data-background-image="img/backgrounds/lightred2.svg">
+                    <h2>OscaR-Modeling</h2>
+                </section>
+                <section>
+                    <h3>Need for a new layer</h3>
+                    <p>Problems with OscaR-CP:</p>
+                    <ul>
+                        <li>Directly concretized variables</li>
+                        <li>Directly concretized constraint (loss of reference)</li>
+                        <li>No serialization</li>
+                        <li>...</li>
+                    </ul>
+                </section>
+                <section>
+                    <section>
+                        <h3>Features of OscaR-Modeling</h3>
+                        <ul>
+                            <li>"Solver-agnostic"</li>
+                            <li>Dichotomy model/solver</li>
+                            <li>DSL nearly equivalent as OscaR-CP</li>
+                            <li>Algebra</li>
+                            <li>Presolving capabilities</li>
+                            <li>Model Tree / Model Operators</li>
+                            <li>Reusable searches</li>
+                            <li>Parallel Solving with EPS</li>
+                            <li>Distributed Solving with EPS</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h3>Model Tree, Model Operators</h3>
+                        <img data-src="img/semantic.png"/>
+                    </section>
+                    <section>
+                        <h3>Algebra simplification</h3>
+                        <table >
+                            <tr>
+                                <td style="text-align: center;">Before simplification</td>
+                                <td style="text-align: center;">After simplification</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <img data-src="img/sendmoremoney1.png"/>
+                                </td>
+                                <td style="text-align: center;">
+                                    <img data-src="img/sendmoremoney2.png"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">23 constraints</td>
+                                <td style="text-align: center;">2 constraints</td>
+                            </tr>
+                        </table>
+                    </section>
+                </section>
+                <section>
+                    <h3>OscaR-Modeling is...</h3>
+                    <ul>
+                        <li>123 Scala files:
+                            <ul>
+                                <li>3924 code lines</li>
+                                <li>1726 comments lines (30.3%)</li>
+                                <li>1001 blank lines</li>
+                                <li><b>6691</b> total lines</li>
+                            </ul>
+                        </li>
+                        <li>
+                            1 Java file (...)
+                        </li>
+                        <li>
+                            32 algebra operators
+                        </li>
+                    </ul>
+                </section>
+                <section>
+                    <section data-background-image="img/backgrounds/orange2.svg">
+                        <h2>OscaR-Modeling with EPS</h2>
+                    </section>
+                    <section>
+                        <h3>Golomb ruler - 13 - EPS vs Work-Stealing</h3>
+                        <img src="img/speedup_ws_vs_eps_golomb.svg"/>
+                    </section>
+                    <section>
+                        <h3>16-Queens - EPS vs Work-Stealing</h3>
+                        <img src="img/speedup_ws_vs_eps_queens.svg"/>
+                    </section>
+                    <section>
+                        <h3>QAP - 11 - 256 workers</h3>
+                        <img src="img/speedup_qap_256.svg"/>
+                    </section>
+                    <section>
+                        <h3>Golomb ruler - 14 - 1024 workers</h3>
+                        <img src="img/speedup_golomb_1024.svg"/>
+                    </section>
+                </section>
+                <section data-background-image="img/backgrounds/lightred2.svg">
+                    <h2>Conclusion</h2>
+                </section>
+                <section data-background-image="img/backgrounds/green1.svg">
+                    <h2>Everything is a FOSS</h2>
+                    <h3>Free, open-source software</h3>
+                    <a href="https://github.com/GuillaumeDerval/MasterThesis-Oscar-Model">https://github.com/GuillaumeDerval/MasterThesis-Oscar-Model</a>
+                    <h3>Free, open-source slides</h3>
+                    <a href="https://github.com/GuillaumeDerval/MasterThesis-Presentation">https://github.com/GuillaumeDerval/MasterThesis-Presentation</a>
+                </section>
+                <section>
+                    <h3>Credits & Acknowledgments</h3>
+                    <h4>Content</h4>
+                    <p style="font-size: 0.6em;">
+                        References: same as master's thesis<br/>
+                        <br/>
+                        Computational resources have been provided by the Consortium des Équipements de Calcul Intensif (CÉCI), funded by the Fonds de la Recherche Scientifique de Belgique (F.R.S.-FNRS) under Grant No. 2.5020.11
+                    </p>
+                    <h4>Slides</h4>
+                    <ul style="font-size: 0.6em;">
+                        <li>Slide made using <a href="https://github.com/hakimel/reveal.js">reveal.js</a></li>
+                        <li>Animation made with <a href="https://d3js.org/">D3.js</a></li>
+                        <li>Code counts: <a href="https://github.com/blackducksoftware/ohcount">OHCount</a></li>
+                        <li>Triangle backgrounds: <a href="https://msurguy.github.io/triangles/">https://msurguy.github.io/triangles/</a></li>
+                    </ul>
+                    <p style="font-size: 8px;">And sorry for those who don't love triangles :-(</p>
+                </section>
 			</div>
 		</div>
 
