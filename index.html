@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,6 +12,11 @@
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
 
+        <style type="text/css">
+            .alert {
+                color: #E46D17;
+            }
+        </style>
         <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
 
 		<!-- Printing and PDF exports -->
@@ -27,36 +32,317 @@
 		<div class="reveal">
 			<div class="slides">
                 <section>
-                    <h2>Parallelization of Constraint Programming using Embarrassingly Parallel Search</h2>
+                    <h2>OscaR-Modeling and Embarassingly Parallel Search</h2>
                     Guillaume Derval<br/>
-                    June 24th 2016
+                    February 3rd 2017<br/>
+                    <div style="width: 100%; height: 100px;"></div>
+                    <img src="img/ucl.jpg" style="border: none; height: 150px; position: absolute; bottom: 0; right: 0;"/>
                 </section>
-                <!--<section>
-                    <h3>Cloud is everywhere</h3>
-                    <script type="text/javascript" src="//www.google.com/trends/embed.js?hl=en&q=/m/02y_9m3,+/m/0jgqg&cmpt=q&tz=Etc/GMT-2&tz=Etc/GMT-2&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"></script>
-                </section>
-                <section>
-                    <h3>Virtually unlimited distributed power</h3>
-                    Amazon Web Services (in 2014): 2 000 000 servers<br/>
-                    Usage increase: 132% YoY<br/>
-                    <br/>
-                    Microsoft (in 2015): 1 000 000 servers<br/>
-                    <br/>
-                    Google : something in between
-                </section>-->
                 <section>
                     <h3>Contents</h3>
                     <ul>
-                        <li>CP, Parallel and Distributed Computing in 120 seconds</li>
-                        <li>Distributing CP</li>
-                        <li>Decompositions</li>
-                        <li>Bound communication</li>
+                        <!--<li>A slide about me</li>-->
+                        <li>Embarrassingly Parallel Search</li>
                         <li>OscaR-Modeling</li>
                         <li>Performances</li>
+                        <li>Future work</li>
                     </ul>
                 </section>
+                <!--<section>
+                    <h3>A slide about me</h3>
+                    <ul>
+                        <li>Computer science engineer since 2016</li>
+                        <li>PhD student at UCLouvain</li>
+                        <li>@beCool, Belgian Constraint Group</li>
+                        <li>Research subject: Concurrency in Constraint Programming</li>
+                        <li>Also a fan of Competitive Programming</li>
+                    </ul>
+                    <img src="img/ucl.jpg" style="border: none; width: 15%; vertical-align: middle;"/>
+                    <span style="display: inline-block; width: 50%"></span>
+                    <img src="img/becool.png" style="border: none; width: 20%; vertical-align: middle;"/>
+                </section>-->
                 <section data-background-image="img/backgrounds/green1.svg">
-                    <h2>CP, Parallel and Distributed Computing in 120 seconds</h2>
+                    <h2>Embarrassingly Parallel Search</h2>
+                    How to parallelize a CP solver?
+                </section>
+                <section>
+                    <h3>Parallelizing CP</h3>
+                    <p>Common methods:</p>
+                    <ul>
+                        <li>Portfolio search</li>
+                        <li>Static decomposition</li>
+                        <li>Work-stealing</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Portfolio search</h3>
+                    <ul>
+                        <li>Start multiple solver concurrently</li>
+                        <li>With different search heuristics</li>
+                        <li>Limited scalability</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Static Decomposition</h3>
+                    <ul>
+                        <li class="fragment">Divide the initial problem</li>
+                        <li class="fragment">S.t. each worker has a subproblem</li>
+                        <li class="fragment">Decomposing is hard</li>
+                    </ul>
+                    <iframe data-src="static-decomposition.html" width="540px" height="430px" style="margin: auto;"></iframe>
+                </section>
+                <section>
+                    <h3>Work-Stealing</h3>
+                    <p>Idle workers "steals" work</p>
+                    <p class="fragment">Very invasive, difficult to scale above ~50 workers</p>
+                    <br/>
+                    <iframe data-src="work-stealing.html" width="712px" height="420px" style="margin: auto;"></iframe>
+                </section>
+                <section>
+                    <h3>Embarassingly Parallel Search (EPS)</h3>
+                    <ul>
+                        <li>Extension of Static Decomposition</li>
+                        <li class="fragment">Numerous subproblems</li>
+                        <li class="fragment">Static or dynamic assignation to worker</li>
+                        <li class="fragment">More subproblems = better balancing</li>
+                        <li class="fragment">Non-invasive</li>
+                    </ul>
+                    <iframe data-src="eps13.html" width="540px" height="420px" style="margin: auto;"></iframe>
+                </section>
+
+                <section>
+                    <h3>Decompositions</h3>
+                    <p>Given a CSP P <$\mathcal{X},\mathcal{D},\mathcal{C}$>:</p>
+                    <ul>
+                        <li>$\mathcal{X}$ being the variables in the CSP</li>
+                        <li>$\mathcal{D}$ contains the domains of these variables</li>
+                        <li>$\mathcal{C}$ is the list of constraints</li>
+                    </ul>
+                    <p>A decomposition is a process that produces a list of CSPs, called subproblems
+                        $s_1, s_2, ..., s_n$, such that</p>
+                    $$\bigcup_{i=1}^n s_i = P$$
+                </section>
+                <section>
+                    <h3>Decompositions (cont.)</h3>
+                    Moreover, we want that:
+                    <ul>
+                        <li>$s_i \cap s_j = \emptyset$ if $i\neq j$ (subproblems do not overlap)</li>
+                        <li>$s_i \neq \emptyset$ after propagation (subproblems are not trivial)</li>
+                        <li>Solving time for each subproblems are in the same order of magnitude</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Decomposition strategies (1)</h3>
+                    <h5>Domain splitting</h5>
+                    <ul>
+                        <li>Take some variables $x_1,x_2,...,x_m$</li>
+                        <li>For each possible combination of assignation (or splitting, ...), create a subproblem $<\mathcal{X},\mathcal{D}',
+                            \mathcal{C}>$</li>
+                        <li>Keep those that are not-trivial</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Decomposition strategies (2)</h3>
+                    <h5>Node splitting</h5>
+                    <ul>
+                        <li>Use a search heuristic</li>
+                        <li>Go down in the search tree until you have enough nodes</li>
+                        <li>Subproblems are in the form of $$s_i=<\mathcal{X},\mathcal{D},\mathcal{C}+H_i>$$ where $H_i$ is a list of added
+                        constraints</li>
+                    </ul>
+                </section>
+                <section>
+                    <section>
+                        <h3>Basic domain splitting (IDDFS)</h3>
+                        <pre><code data-trim contenteditable>
+xs <- list of variables
+for(i <- 0 until xs.length) {
+    decomp <- generate(xs[0], ..., xs[i])
+    if(decomp.length >= n)
+        return decomp
+}
+return decomp
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Results</h3>
+                        Implicit assumption: each node at the same height are $\approx$ the same space size
+
+                        <img data-src="img/golomb_decomp_regin.png"/>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h3>Cartesian-product-based iterative refinement (CPIR)</h3>
+                        <h4>An example of node-splitting strategy</h4>
+                        <pre><code data-trim contenteditable>
+q <- new max-Priority Queue
+q.add(cartProd(P), P)
+while(q.size != n) {
+    sp <- q.poll()
+    for(c <- sp.children)
+        q.add(cartProd(c), c)
+}
+return content of q
+                        </code></pre>
+                        </section>
+                    <section>
+                        <h3>Results</h3>
+                        <img data-src="img/golomb_decomp_cpr_binary.png"/>
+                    </section>
+                </section>
+
+                <section data-background-image="img/backgrounds/lightred2.svg">
+                    <h2>OscaR-Modeling</h2>
+                </section>
+                <section>
+                    <h3><img src="img/oscar.png" alt="OscaR" style="border: none; box-shadow: none"/></h3>
+                    <p>OscaR is a Scala toolkit for solving Operations Research problems. <br/>
+                        <br/>
+                        It includes tools to solve a great variety of problems:</p>
+                    <ul>
+                        <li>Constraint Programming (CP)</li>
+                        <li>Linear (Integer) Programming (LP, MIP)</li>
+                        <li>Constraint-Based Local Search (CBLS)</li>
+                        <li>...</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Implementing EPS <strong>in</strong> OscaR-CP</h3>
+                    <p>Difficult to impossible.</p>
+                    <ul>
+                        <li>Variables in OscaR-CP are always concretized.</li>
+                        <li>Constraint definition are lost upon instantiation</li>
+                        <li>No serialization</li>
+                        <li>...</li>
+                    </ul>
+                    <p class="fragment">OscaR-CP is a "low-level" solver, not a modelisation language!</p>
+                    <p class="fragment fade-up alert">Main motivation: simple serialization of models over the network.<br>
+                        $\rightarrow$ implementation <strong>on</strong> OscaR-CP</p>
+                </section>
+
+                <section>
+                    <h3>Features of OscaR-Modeling</h3>
+                    <ul>
+                        <li>"Solver-agnostic"</li>
+                        <li>Dichotomy model/solver</li>
+                        <li>DSL nearly equivalent as OscaR-CP</li>
+                        <li>Algebra</li>
+                        <li>Presolving capabilities</li>
+                        <li>Model Tree / Model Operators</li>
+                        <li>Reusable searches</li>
+                        <li>Parallel Solving with EPS</li>
+                        <li>Distributed Solving with EPS</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Currently accessible solvers/model types</h3>
+                    <img src="img/current_disp.svg" style="border: none; box-shadow: none;"/>
+                </section>
+                <section>
+                    <h3>In the <strike>hypothetical</strike> future</h3>
+                    <img src="img/future_disp.svg" style="border: none; box-shadow: none;"/>
+                </section>
+                <section>
+                    <h3>Model Tree, Model Operators</h3>
+                    <img data-src="img/semantic.svg" style="border: none; box-shadow: none;"/>
+                </section>
+                <section>
+                    <h1>Code time!</h1>
+                </section>
+                <section>
+                    <h3>SEND+MORE=MONEY model</h3>
+                    <pre><code class="hlscala" data-trim contenteditable>
+class SendMoreMoney extends ModelDeclaration {
+  val all = Array.fill(8)(IntVar(0, 9))
+  val Array(s, e, n, d, m, o, r, y) = all
+
+  //SEND, MORE and MONEY must no start with a 0
+  add(s > 0)
+  add(m > 0)
+
+  //All the variables must have a different value
+  add(AllDifferent(all))
+
+  //And we have the main constraint
+  add(        s*1000 + e*100 + n*10 + d +
+              m*1000 + o*100 + r*10 + e ===
+    m*10000 + o*1000 + n*100 + e*10 + y)
+}
+					</code></pre>
+                </section>
+                <section>
+                    <h3>SEND+MORE=MONEY in MIP</h3>
+                    <pre><code class="hlscala" data-trim contenteditable>
+object MySolver extends SolverApp[String] with MIPSolving {
+  override val modelDeclaration = new SendMoreMoney()
+
+  //Solution handler
+  onSolution { modelDeclaration.all.map(_.min).mkString(",") }
+
+  //Display first solution
+  println(solve().head)
+}
+					</code></pre>
+                    <pre><code class="hlbash" data-trim contenteditable>
+$ java MySolver
+9,5,6,7,1,0,8,2
+                    </code></pre>
+                </section>
+                <section>
+                    <h3>SEND+MORE=MONEY in MIP <strong>and</strong> CP</h3>
+                    <pre><code class="hlscala" data-trim contenteditable>
+object MySolver extends SolverApp[String] with MIPSolving
+                                          with SequentialCPSolving {
+  override val modelDeclaration = new SendMoreMoney()
+
+  //Solution handler
+  onSolution { modelDeclaration.all.map(_.min).mkString(",") }
+
+  //Add a CP search
+  setCPSearch(Branchings.binaryStatic(modelDeclaration.all))
+
+  //Display first solution
+  println(solve().head)
+}
+					</code></pre>
+                    <pre><code class="hlbash" data-trim contenteditable>
+$ java MySolver mip
+9,5,6,7,1,0,8,2
+                    </code></pre>
+                    <pre><code class="hlbash" data-trim contenteditable>
+$ java MySolver cp
+9,5,6,7,1,0,8,2
+                    </code></pre>
+                </section>
+                <section>
+                    <h3>Now, in parallel</h3>
+                    <pre><code class="hlscala" data-trim contenteditable>
+object MySolver extends SolverApp[String] with MIPSolving
+                                          with SequentialCPSolving
+                                          with ParallelCPSolving {
+  override val modelDeclaration = new SendMoreMoney()
+  val vars = modelDeclaration.all
+
+  //Add a CP search
+  setCPSearch(Branchings.binaryStatic(vars))
+
+  //Add an EPS decomposition
+  setCPDecompositionStrategy(new CartProdRefinement(vars, Branchings.binaryStatic(vars)))
+
+  //Solution handler
+  onSolution { vars.map(_.min).mkString(",") }
+
+  //Display first solution
+  println(solve().head)
+}
+					</code></pre>
+                    <pre><code class="hlbash" data-trim contenteditable>
+$ java MySolver parallel-cp -n 8
+# some solver output
+9,5,6,7,1,0,8,2
+                    </code></pre>
                 </section>
                 <!--<section>
                     <h3>Constraint programming</h3>
@@ -66,223 +352,11 @@
                         made to the Holy Grail of programming: the user states the problem, the computer solves it.&rdquo;
                     </blockquote>
                 </section>-->
-                <section>
-                    <h3>Constraint programming<!--(2)--></h3>
-                    <ul>
-                        <li>Given a CSP/COP</li>
-                        <li>Visit the "whole" search space</li>
-                        <li>Cut in the tree using "constraints"</li>
-                    </ul>
+                <section data-background-image="img/backgrounds/orange2.svg">
+                    <h2>Performance</h2>
+                    <h3>OscaR-Modeling with EPS</h3>
                 </section>
                 <section>
-                    <h3>Serial, Parallel, Distributed computing</h3>
-                    <img src="img/spd.svg" style="border:none; box-shadow: none; background: transparent"/>
-                </section>
-                <section>
-                    <h3>Speedup<!-- and efficiency--></h3>
-                    <h4>Speedup $S$ (in latency):</h4>
-                    Ratio between the time taken to run on the "old" arch., and the time on the "new" one.
-                    <!--<br/>
-                    <br/>
-                    <h4>Efficiency $\eta$:</h4>
-                    Speedup divided by the number of threads/cores/workers involved.-->
-                </section>
-				<section data-background-image="img/backgrounds/lightred1.svg">
-                    <h1>Distributing CP</h1>
-                </section>
-                <section>
-                    <h3>Static Decomposition</h3>
-                    <ul>
-                        <li class="fragment">Divide the initial problem</li>
-                        <li class="fragment">S.t. each worker has a subproblem</li>
-                        <li class="fragment">Decomposing is hard</li>
-                    </ul>
-                    <iframe data-src="static-decomposition.html" width="540px" height="400px" style="margin: auto;"></iframe>
-                </section>
-                <section  data-background-image="img/backgrounds/lightgrey2.svg">
-                    <h3>Work-Stealing</h3>
-                    Idle workers "steals" work<br/>
-                    <br/>
-                    <!--<ul>
-                        <li>Idle workers "steals" work</li>
-                        <li class="fragment">Start with a single worker with the full problem</li>
-                        <li class="fragment"><i>Idle</i> worker stop <i>solving</i> workers to ask for work</li>
-                        <li class="fragment">Difficult to say when to stop</li>
-                        <li class="fragment">Too much communication -> slow</li>
-                    </ul>-->
-                    <iframe data-src="work-stealing.html" width="712px" height="380px" style="margin: auto;"></iframe>
-                </section>
-                <section  data-background-image="img/backgrounds/lightgrey3.svg">
-                    <h3>Embarassingly Parallel Search</h3>
-                    <ul>
-                        <li>Extension of Static Decomposition</li>
-                        <li class="fragment">Numerous subproblems</li>
-                        <li class="fragment">Static or dynamic assignation to worker</li>
-                        <li class="fragment">More subproblems = better balancing</li>
-                    </ul>
-                    <iframe data-src="eps13.html" width="540px" height="400px" style="margin: auto;"></iframe>
-                </section>
-                <section data-background-image="img/backgrounds/orange1.svg">
-                    <h2>Decompositions</h2>
-                </section>
-                <section>
-                    <section>
-                        <h3>Importance of decompositions</h3>
-                        <br/>
-                        <br/>
-                        <p>
-                            Given $t_{\text{max}}$, the solving time of the largest subproblem:
-                        </p>
-                        <ul>
-                            <li>Minimum solving time is then $t_{\text{max}}$</li>
-                            <li>The maximum inactivity time of any worker is $t_{\text{max}}$</li>
-                        </ul>
-                        <br/><br/><br/>
-                        <h4>
-                            Decompositions should minimize $t_{\text{max}}$.
-                        </h4>
-                    </section>
-                    <section>
-                        <h3>Decompositions on COPs</h3>
-                        <br/>
-                        <br/>
-                        <p>For optimization problems</p>
-                        <h4>More balanced subproblems = better chances to find the optimum rapidly</h4>
-                    </section>
-                </section>
-                <section>
-                    <section>
-                        <h3>IDDFS</h3>
-                        Iterative deepening DFS, subproblems are the nodes on the last depth visited.<br/>
-                        <br/>
-                        <ol>
-                            <li>For maxDepth=1</li>
-                            <li>Do a DFS up to depth maxDepth, keep frontier in memory</li>
-                            <li>If frontier not big enough, increase maxDepth, start from 1</li>
-                            <li>Return frontier as subproblems</li>
-                        </ol>
-                    </section>
-                    <section>
-                        <h3>Good enough?</h3>
-                        Implicit assumption: each node at the same height are +/- the same space size
-                        <br/>
-                        <br/>
-                        <h4>In practice? False.</h4>
-                        <img data-src="img/golomb_decomp_regin.png"/>
-                    </section>
-                </section>
-                <section>
-                    <section>
-                        <h3>CPIR</h3>
-                        Idea: iterative refinement + decompose bigger subproblems first.<br/>
-                        <br/>
-                        Bigger = greater Cartesian Product Cardinality<br/>
-                        <br/>
-                        <ol>
-                            <li>Init a priority queue pq</li>
-                            <li>Put the initial problem inside</li>
-                            <li>While pq.size < threshold
-                                <ol>
-                                    <li>Get biggest subproblem</li>
-                                    <li>Divide it</li>
-                                    <li>Put new subproblems in the queue</li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </section>
-                    <section>
-                        <h3>Good enough?</h3>
-                        <img data-src="img/golomb_decomp_cpr_binary.png"/>
-                    </section>
-                </section>
-                <section>
-                    <h3>CPIR vs IDDFS</h3>
-                    <img data-src="img/iddfs_vs_cpir.png"/>
-                </section>
-                <section data-background-image="img/backgrounds/green2.svg">
-                    <h2>Bound management</h2>
-                </section>
-                <section>
-                    <h3>EPS for COPs</h3>
-                    <img data-src="img/speedup_comm.svg"/>
-                </section>
-                <section data-background-image="img/backgrounds/lightred2.svg">
-                    <h2>OscaR-Modeling</h2>
-                </section>
-                <section>
-                    <h3>Need for a new layer</h3>
-                    <p>Problems with OscaR-CP:</p>
-                    <ul>
-                        <li>Directly concretized variables</li>
-                        <li>Directly concretized constraint (loss of reference)</li>
-                        <li>No serialization</li>
-                        <li>...</li>
-                    </ul>
-                </section>
-                <section>
-                    <section>
-                        <h3>Features of OscaR-Modeling</h3>
-                        <ul>
-                            <li>"Solver-agnostic"</li>
-                            <li>Dichotomy model/solver</li>
-                            <li>DSL nearly equivalent as OscaR-CP</li>
-                            <li>Algebra</li>
-                            <li>Presolving capabilities</li>
-                            <li>Model Tree / Model Operators</li>
-                            <li>Reusable searches</li>
-                            <li>Parallel Solving with EPS</li>
-                            <li>Distributed Solving with EPS</li>
-                        </ul>
-                    </section>
-                    <section>
-                        <h3>Model Tree, Model Operators</h3>
-                        <img data-src="img/semantic.png"/>
-                    </section>
-                    <section>
-                        <h3>Algebra simplification</h3>
-                        <table >
-                            <tr>
-                                <td style="text-align: center;">Before simplification</td>
-                                <td style="text-align: center;">After simplification</td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: center;">
-                                    <img data-src="img/sendmoremoney1.png"/>
-                                </td>
-                                <td style="text-align: center;">
-                                    <img data-src="img/sendmoremoney2.png"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: center;">23 constraints</td>
-                                <td style="text-align: center;">2 constraints</td>
-                            </tr>
-                        </table>
-                    </section>
-                </section>
-                <section>
-                    <h3>OscaR-Modeling is...</h3>
-                    <ul>
-                        <li>123 Scala files:
-                            <ul>
-                                <li>3924 code lines</li>
-                                <li>1726 comments lines (30.3%)</li>
-                                <li>1001 blank lines</li>
-                                <li><b>6691</b> total lines</li>
-                            </ul>
-                        </li>
-                        <li>
-                            1 Java file (...)
-                        </li>
-                        <li>
-                            32 algebra operators
-                        </li>
-                    </ul>
-                </section>
-                <section>
-                    <section data-background-image="img/backgrounds/orange2.svg">
-                        <h2>OscaR-Modeling with EPS</h2>
-                    </section>
                     <section>
                         <h3>Golomb ruler - 13 - EPS vs Work-Stealing</h3>
                         <img src="img/speedup_ws_vs_eps_golomb.svg"/>
@@ -300,21 +374,46 @@
                         <img src="img/speedup_golomb_1024.svg"/>
                     </section>
                 </section>
+                <section data-background-image="img/backgrounds/orange2.svg">
+                    <h2>Future work</h2>
+                </section>
+                <section>
+                    <h3>EPS offers new possibilities</h3>
+                    A lot of open questions:
+                    <ul>
+                        <li>What is the importance of the decomposition strategy?</li>
+                        <li>In what order should we evaluate subproblems?</li>
+                        <li>How can we use the statistical power offered by the huge number of subproblems we have?</li>
+                        <li>What about incomplete methods?</li>
+                        <li>...</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>About OscaR-Modeling</h3>
+                    <ul>
+                        <li>Now integrated in the main OscaR repository</li>
+                        <li>API is (more or less) fixed now</li>
+                        <li>Support for LNS/[insert fancy solving method here] is not (yet) present...</li>
+                        <li>... but will probably be integrated later during my Phd.</li>
+                    </ul>
+                </section>
                 <section data-background-image="img/backgrounds/lightred2.svg">
                     <h2>Conclusion</h2>
                 </section>
                 <section data-background-image="img/backgrounds/green1.svg">
                     <h2>Everything is a FOSS</h2>
                     <h3>Free, open-source software</h3>
-                    <a href="https://github.com/GuillaumeDerval/MasterThesis-Oscar-Model">https://github.com/GuillaumeDerval/MasterThesis-Oscar-Model</a>
-                    <h3>Free, open-source slides</h3>
+                    <p><img src="img/oscar.png" alt="OscaR" style="border: none; box-shadow: none"/></p>
+                    <a href="https://bitbucket.org/oscarlib/oscar/wiki/Home">https://bitbucket.org/oscarlib/oscar/wiki/Home</a>
+                    <br/><br/><br/>
+                    <h4>Free, open-source slides</h4>
                     <a href="https://github.com/GuillaumeDerval/MasterThesis-Presentation">https://github.com/GuillaumeDerval/MasterThesis-Presentation</a>
                 </section>
                 <section>
                     <h3>Credits & Acknowledgments</h3>
                     <h4>Content</h4>
                     <p style="font-size: 0.6em;">
-                        References: same as master's thesis<br/>
+                        References: see my master's thesis and the followup paper at CP2016<br/>
                         <br/>
                         Computational resources have been provided by the Consortium des Équipements de Calcul Intensif (CÉCI), funded by the Fonds de la Recherche Scientifique de Belgique (F.R.S.-FNRS) under Grant No. 2.5020.11
                     </p>
@@ -322,10 +421,8 @@
                     <ul style="font-size: 0.6em;">
                         <li>Slide made using <a href="https://github.com/hakimel/reveal.js">reveal.js</a></li>
                         <li>Animation made with <a href="https://d3js.org/">D3.js</a></li>
-                        <li>Code counts: <a href="https://github.com/blackducksoftware/ohcount">OHCount</a></li>
                         <li>Triangle backgrounds: <a href="https://msurguy.github.io/triangles/">https://msurguy.github.io/triangles/</a></li>
                     </ul>
-                    <p style="font-size: 8px;">And sorry for those who don't love triangles :-(</p>
                 </section>
 			</div>
 		</div>
